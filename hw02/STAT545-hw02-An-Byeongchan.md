@@ -375,39 +375,4 @@ filter(gapminder, country %in% c("Rwanda", "Afghanistan"))
 ```
 At the beginning, the analyst should explore the data by plotting or making a table. Then, the analyst could analyze the data more specifically by plots, summary stats, or time-series regressions. 
   
-Presenting numerical tables in a more attractive form
-
-```r
-knitr::kable(filter(gapminder, country %in% c("Rwanda", "Afghanistan")))
-```
-
-
-
-country       continent    year   lifeExp        pop   gdpPercap
-------------  ----------  -----  --------  ---------  ----------
-Afghanistan   Asia         1952    28.801    8425333    779.4453
-Afghanistan   Asia         1957    30.332    9240934    820.8530
-Afghanistan   Asia         1962    31.997   10267083    853.1007
-Afghanistan   Asia         1967    34.020   11537966    836.1971
-Afghanistan   Asia         1972    36.088   13079460    739.9811
-Afghanistan   Asia         1977    38.438   14880372    786.1134
-Afghanistan   Asia         1982    39.854   12881816    978.0114
-Afghanistan   Asia         1987    40.822   13867957    852.3959
-Afghanistan   Asia         1992    41.674   16317921    649.3414
-Afghanistan   Asia         1997    41.763   22227415    635.3414
-Afghanistan   Asia         2002    42.129   25268405    726.7341
-Afghanistan   Asia         2007    43.828   31889923    974.5803
-Rwanda        Africa       1952    40.000    2534927    493.3239
-Rwanda        Africa       1957    41.500    2822082    540.2894
-Rwanda        Africa       1962    43.000    3051242    597.4731
-Rwanda        Africa       1967    44.100    3451079    510.9637
-Rwanda        Africa       1972    44.600    3992121    590.5807
-Rwanda        Africa       1977    45.000    4657072    670.0806
-Rwanda        Africa       1982    46.218    5507565    881.5706
-Rwanda        Africa       1987    44.020    6349365    847.9912
-Rwanda        Africa       1992    23.599    7290203    737.0686
-Rwanda        Africa       1997    36.087    7212583    589.9445
-Rwanda        Africa       2002    43.413    7852401    785.6538
-Rwanda        Africa       2007    46.242    8860588    863.0885
-
 
