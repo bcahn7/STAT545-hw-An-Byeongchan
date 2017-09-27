@@ -125,7 +125,7 @@ g2 <- gapminder %>%
            year>1970 ) %>%
     select(country, year, lifeExp, pop) %>% 
     arrange(desc(year))
-
+g2
 g2 %>% 
   ggplot(aes(x=country,y=lifeExp)) + geom_point()
 

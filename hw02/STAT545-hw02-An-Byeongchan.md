@@ -304,7 +304,27 @@ g2 <- gapminder %>%
            year>1970 ) %>%
     select(country, year, lifeExp, pop) %>% 
     arrange(desc(year))
+g2
+```
 
+```
+## # A tibble: 32 x 4
+##        country  year lifeExp        pop
+##         <fctr> <int>   <dbl>      <int>
+##  1      Canada  2007  80.653   33390141
+##  2       China  2007  72.961 1318683096
+##  3       Japan  2007  82.603  127467972
+##  4 Korea, Rep.  2007  78.623   49044790
+##  5      Canada  2002  79.770   31902268
+##  6       China  2002  72.028 1280400000
+##  7       Japan  2002  82.000  127065841
+##  8 Korea, Rep.  2002  77.045   47969150
+##  9      Canada  1997  78.610   30305843
+## 10       China  1997  70.426 1230075000
+## # ... with 22 more rows
+```
+
+```r
 g2 %>% 
   ggplot(aes(x=country,y=lifeExp)) + geom_point()
 ```
