@@ -1,6 +1,8 @@
 ---
 title: "STAT545-hw02-An-Byeongchan"
-output: html_document
+output: 
+  html_document:
+    keep_md: yes
 ---
 
 ```{r setup, include=FALSE}
@@ -150,7 +152,7 @@ First of all, this code does not extract full information for Rwanda and Afghani
 filter(gapminder, country %in% c("Rwanda", "Afghanistan"))
 ```
 At the beginning, the analyst should explore the data by plotting or making a table. Then, the analyst could analyze the data more specifically by plots, summary stats, or time-series regressions. 
-
+  
 Presenting numerical tables in a more attractive form
 ```{r}
 knitr::kable(filter(gapminder, country %in% c("Rwanda", "Afghanistan")))
