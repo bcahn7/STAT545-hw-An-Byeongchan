@@ -1,0 +1,159 @@
+---
+title: "STAT545-hw02-An-Byeongchan"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(gapminder)
+library(tidyverse)
+```
+
+## Smell test the data
+- **Is it a data.frame, a matrix, a vector, a list?**
+```{r}
+typeof(gapminder)
+str(gapminder)
+```
+
+- **What’s its class?**
+```{r}
+class(gapminder)
+```
+
+
+- **How many variables/columns?**
+```{r}
+ncol(gapminder)
+length(gapminder)
+```
+
+- **How many rows/observations?**
+```{r}
+nrow(gapminder)
+```
+
+- **Can you get these facts about “extent” or “size” in more than one way? Can you imagine different functions being useful in different contexts?**
+```{r}
+dim(gapminder)
+summary(gapminder)
+str(gapminder)
+```
+
+- **What data type is each variable?**
+```{r}
+str(gapminder)
+```
+
+
+- **other functions**
+```{r}
+head(gapminder)
+tail(gapminder)
+```
+
+
+## Explore individual variables
+Pick __at least__ one categorical variable and at least one quantitative variable to explore.
+
+- **What are possible values (or range, whichever is appropriate) of each variable?**
+- **What values are typical? What's the spread? What's the distribution? Etc., tailored to the variable at hand.**
+- **Feel free to use summary stats, tables, figures. We're NOT expecting high production value (yet).**  
+  
+lifeExp variable is chosen and explored.
+```{r}
+summary(lifeExp)
+```
+Then, lifeExp is analyzed in each continent. Some summary stats for lifeExp in each continent are shown. The spread and the distribution can be estimated by mean, standard deviation, minimum, median, and maximum. For better understanding, the data was visualized by plotting.
+```{r}
+g1 <- gapminder %>% 
+    group_by(continent) %>% 
+    summarize(mean_lifeExp = mean(lifeExp), 
+              std_lifeExp = sd(lifeExp),
+              min_lifeExp = min(lifeExp),
+              median_lifeExp = median(lifeExp),
+              max_lifeExp = max(lifeExp))
+g1
+
+plot(x=gapminder$continent, y=gapminder$lifeExp, gapminder)
+ggplot(gapminder, aes(x=continent, y=lifeExp)) +
+    geom_point(aes(alpha=0.25))
+
+```
+
+
+## Explore various plot types
+See the [`ggplot2` tutorial](https://github.com/jennybc/ggplot2-tutorial), which also uses the `gapminder` data, for ideas.
+
+Make a few plots, probably of the same variable you chose to characterize numerically. Try to explore more than one plot type. **Just as an example** of what I mean:
+- **A scatterplot of two quantitative variables.**  
+- **A plot of one quantitative variable. Maybe a histogram or densityplot or frequency polygon.**  
+- **A plot of one quantitative variable and one categorical. Maybe boxplots for several continents or countries.**  
+
+```{r}
+#Scatter plot of x=log10(gdpPercap), y=lifeExp in each continent
+p1 <- ggplot(gapminder, aes(x=gdpPercap,
+                            y=lifeExp))
+p1+geom_point(aes(colour=continent, alpha=0.3))+ scale_x_log10()
+
+# Histogram and frequency polygon for lifeExp
+p2 <- ggplot(gapminder, aes(lifeExp))
+p2+geom_freqpoly(colour="red", size=1.3)+geom_histogram(colour="blue", alpha=0.3)
+
+#Densityplot for lifeExp
+p2+geom_density()
+
+#Boxplot for lifeExp in each continent 
+p3 <- ggplot(gapminder, aes(x=continent,
+                            y=lifeExp))
+p3+geom_boxplot()
+```
+
+## Use `filter()`, `select()` and `%>%`
+Use `filter()` to create data subsets that you want to plot.
+Practice piping together `filter()` and `select()`. Possibly even piping into `ggplot()`.
+
+```{r}
+#Data subset is created to compare the lifeExp since 1970 in some countries including Korea, Japan, China, and Canada.
+g2 <- gapminder %>%
+    filter(country %in% c("Korea, Rep.", "Japan", "China", "Canada"),
+           year>1970 ) %>%
+    select(country, year, lifeExp, pop) %>% 
+    arrange(desc(year))
+
+g2 %>% 
+  ggplot(aes(x=country,y=lifeExp)) + geom_point()
+
+g2 %>% 
+  ggplot(aes(x=year, y=lifeExp, colour=country)) + 
+  geom_point() +
+  geom_line()
+```
+
+
+
+#### But I want to do more!
+
+*For people who want to take things further.*
+
+Evaluate this code and describe the result. Presumably the analyst's intent was to get the data for Rwanda and Afghanistan. Did they succeed? Why or why not? If not, what is the correct way to do this?
+
+```{r}
+filter(gapminder, country == c("Rwanda", "Afghanistan"))
+```
+
+First of all, this code does not extract full information for Rwanda and Afghanistan from the gapminder. The code should be like below for the full information
+```{r}
+filter(gapminder, country %in% c("Rwanda", "Afghanistan"))
+```
+At the beginning, the analyst should explore the data by plotting or making a table. Then, the analyst could analyze the data more specifically by plots, summary stats, or time-series regressions. 
+
+Presenting numerical tables in a more attractive form
+```{r}
+knitr::kable(filter(gapminder, country %in% c("Rwanda", "Afghanistan")))
+```
+
+
