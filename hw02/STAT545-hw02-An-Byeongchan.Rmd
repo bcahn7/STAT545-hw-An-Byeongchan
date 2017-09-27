@@ -65,7 +65,7 @@ Pick __at least__ one categorical variable and at least one quantitative variabl
   
 lifeExp variable is chosen and explored.
 ```{r}
-summary(lifeExp)
+summary(gapminder$lifeExp)
 ```
 Then, lifeExp is analyzed in each continent. Some summary stats for lifeExp in each continent are shown. The spread and the distribution can be estimated by mean, standard deviation, minimum, median, and maximum. For better understanding, the data was visualized by plotting.
 ```{r}
