@@ -1,4 +1,12 @@
 
+# Stat545 hw03
+
+[link to STAT545-hw03-An-Byeongchan.md](STAT545-hw03-An-Byeongchan.md)  
+
+
+[link to STAT545-hw03-An-Byeongchan.Rmd](STAT545-hw03-An-Byeongchan.Rmd)  
+[link to STAT545-hw03-An-Byeongchan.html](STAT545-hw03-An-Byeongchan.html)
+
 ## Report my progress
 
 I tried to use dplyr to manipulate and explore data and ggplot2 to visualize the results. I tried to apply many of fucntions taught in class. Doing the homework I had some troubles.  
