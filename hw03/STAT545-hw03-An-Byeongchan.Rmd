@@ -142,6 +142,10 @@ knitr::kable(g4 %>% spread(key="continent", value="freq_lifeExp"))
 ```
 
 - Find countries with interesting stories. Open-ended and, therefore, hard. Promising but unsuccessful attempts are encouraged. This will generate interesting questions to follow up on in class.
+  
+I tried to see if there was any linear relationship between gdp(or gdpPercap) and lifeExp. Thus, I fixed the time period (year) to 2007. (gdp was calculated as gdpPercap*pop)
+First of all, I tried to make a plot of lifeExp versus gdp (and then gdpPercap) in each continent. However, the plots showed that there was no linear relationship between them.
+Then, I tried to scale gdp(and gdpPercap) in log10. 
 ```{r}
 g5 <- gapminder %>% 
   filter(year==2007) %>% 
@@ -150,26 +154,31 @@ g5 <- gapminder %>%
 g5 %>% 
   ggplot(aes(x=gdp, y=lifeExp)) + 
   facet_wrap(~ continent) +
-  geom_point() 
-
-g5 %>% 
-  ggplot(aes(x=gdpPercap, y=lifeExp)) + 
-  facet_wrap(~ continent) +
   geom_point() +
-  theme_bw()
-
-g5 %>% 
-  ggplot(aes(x=gdp, y=lifeExp)) + 
-  facet_wrap(~ continent) +
-  geom_point() +
-  scale_x_log10()
+  labs(title="The plot of lifeExp versus gdp in 2007")
 
 g5 %>% 
   ggplot(aes(x=gdpPercap, y=lifeExp)) + 
   facet_wrap(~ continent) +
   geom_point() +
   theme_bw() +
-  scale_x_log10()
+  labs(title="The plot of lifeExp versus gdpPercap in 2007")
+
+g5 %>% 
+  ggplot(aes(x=gdp, y=lifeExp)) + 
+  facet_wrap(~ continent) +
+  geom_point() +
+  scale_x_log10() +
+  labs(title="The plot of lifeExp versus log10(gdp) in 2007")
+
+
+g5 %>% 
+  ggplot(aes(x=gdpPercap, y=lifeExp)) + 
+  facet_wrap(~ continent) +
+  geom_point() +
+  theme_bw() +
+  scale_x_log10() +
+  labs(title="The plot of lifeExp versus log10(gdpPercap) in 2007")
 
 #g6 <- g5 %>%
 #  filter(country %in% c("Canada", "Australia", "Korea, Rep.", "Japan", "China"))
@@ -177,6 +186,26 @@ g5 %>%
 #  ggplot(aes(x=year, y=gdp, color=country)) + geom_point()
 ```
 
+There might be linear relationship between lifeExp and log10(gdpPercap). Thus, I tried to compare each coefficients from linear regression.
+Even though there were quite big differences among intercepts, slope coefficients were quite similar. (I couldn't run linear regression for America.)
+Further analysis such as R squared is needed for better interpretation.
+```{r}
+fit_Africa <- lm(lifeExp ~ log(gdpPercap), 
+                 data = filter(g5,continent=="Africa"))
+#fit_America <- lm(lifeExp ~ log(gdpPercap), 
+#                  data =filter(g5,continent=="America")) 
+fit_Asia <- lm(lifeExp ~ log(gdpPercap), 
+                  data =filter(g5,continent=="Asia"))
+fit_Europe <- lm(lifeExp ~ log(gdpPercap), 
+                  data =filter(g5,continent=="Europe")) 
+fit_Oceania <- lm(lifeExp ~ log(gdpPercap), 
+                  data =filter(g5,continent=="Oceania"))
+fit_Africa$coefficients
+fit_Asia$coefficients
+fit_Europe$coefficients
+fit_Oceania$coefficients
+
+```
 
 
   
