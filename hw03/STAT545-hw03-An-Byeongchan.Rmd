@@ -1,0 +1,187 @@
+---
+title: "STAT545-hw03-An-Byeongchan"
+output: 
+  html_document:
+    keep_md: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(gapminder)
+library(tidyverse)
+```
+
+## Task menu
+- Get the maximum and minimum of GDP per capita for all continents.
+- Look at the spread of GDP per capita within the continents.
+
+First of all, I got the maximum and minimum values of GDP per capita for all continents using group_by() and summarize(). Then, the table to look at the spread of GDP per capita was added.However, this table is not enough to glimpse the distribution. Therefore, boxplot is added to show the gdpPercap distribution in each continent.To see the change of the gdpPercap over time, I supplemented the plot of gdpPercap versus year using geom_point() and geom_smooth().  
+
+
+```{r}
+#The maximum and minimum values of GDP per capita for all continents
+gapminder %>% 
+  group_by(continent) %>% 
+  summarize(max_gdpPercap = max(gdpPercap),
+            min_gdpPercap = min(gdpPercap))
+
+#The gdpPercap distribution glimpse
+gapminder %>% 
+  group_by(continent) %>% 
+  summarize(mean_gdpPercap = mean(gdpPercap),
+            std_gdpPercap = sd(gdpPercap),
+            min_gdpPercap = min(gdpPercap),
+            median_gdpPercap = median(gdpPercap),
+            max_gdpPercap = max(gdpPercap))  
+#The boxplot on the gdpPercap distribution in each continent
+ggplot(gapminder, aes(x=continent, y=gdpPercap)) + geom_boxplot() +
+  labs(title="Boxplot")
+
+#The change of gdpPercap over time in each continent
+ggplot(gapminder, aes(x=year, y=gdpPercap, color= continent))+
+  geom_point() +
+  geom_smooth(se=FALSE) +
+  labs(title="Regression curve")
+```
+
+- Compute a trimmed mean of life expectancy for different years. Or a weighted mean, weighting by population. Just try something other than the plain vanilla mean.
+
+I computed a trimmed mean of life expectancy for different years using 'mean(lifeExp, trim=0.1)'. Trimmed means mean the fraction of observations to be trimmed from each end of values before the mean is computed. trim=0.1 means cutting off 10% of each end of values. 
+In addition, the weighted mean which is weighted by population is calculated for different years. 'weighted.mean(lifeExp, pop)' is used for this.
+```{r}
+gapminder %>%
+  group_by(year) %>% 
+  summarize(mean_lifeExp = mean(lifeExp),
+            mean_trimmed_lifeExp = mean(lifeExp, trim=0.1),
+            mean_wghtd_lifeExp = weighted.mean(lifeExp, pop))
+```
+
+
+- How is life expectancy changing over time on different continents?
+
+Firstly, I plotted spaghetti plot for each country's lifeExp over time distinguishing continent by color. However, this plot looks quite messy and would be better complemented by other plots.
+Thus, I added a regression curve to show the lifeExp changes over time in each continent.
+
+```{r}
+g1 <- ggplot(gapminder, aes(x=year, y=lifeExp, 
+                            color= continent))
+#Spaghetti plot: It's quite hard(messy) to distinguish patterns on different continents
+g1 + geom_line(aes(group= country, alpha=0.2)) +
+  labs(title="Spaghetti plot")
+
+#Regression curve: showing the change of lifeExp over time in each continent
+g1 + geom_point() + 
+  geom_smooth(se= TRUE) +
+  labs(title="Regression curve")
+```
+
+- Report the absolute and/or relative abundance of countries with low life expectancy over time by continent: Compute some measure of worldwide life expectancy – you decide – a mean or median or some other quantile or perhaps your current age. Then determine how many countries on each continent have a life expectancy less than this benchmark, for each year.
+
+I reported the absolute frequency of lower-than-median life expectancy over time by continent.
+First of all, I used median across the whole data. The median was 60.71. Then I mutated one more variable which is 1 if the observation's lifeExp is smaller than the median(60.71), otherwise 0. Then, I counted the number of 1 in each year and each continent. To visualize this, I plotted the frequency of lower-than-median life expectancy over time using geom_point() and geom_line().
+After this, I tried to use the median values in each year as a cutoff. I calculated the median values for each year (which is g3 in my code) and merged this to gapminder dataset. Then, I used these median values as a comparison. This plot is flatter than the former plot. This is because the median value increases as time goes by. This plot shows that the ratio of below-median lifeExp is quite constant over time in each continent.
+```{r}
+#summary stats for gapminder$lifeExp
+summary(gapminder$lifeExp)
+
+#Take median as m1 (It is easy to change to another summary stat or a constant)
+m1 <- median(gapminder$lifeExp)
+
+g2 <- gapminder %>% 
+  select(country, continent, year, lifeExp) %>% 
+  mutate(below_mean= ifelse(lifeExp < m1, 1, 0)) %>% #filter(lifeExp<40) does not include the frequency of 0
+  group_by(year, continent) %>% 
+  summarize(freq_lifeExp= sum(below_mean)) 
+
+#Plot: The frequency of lower-than-median lifeExp over time
+#Median(60.71) is extracted from the whole data 
+g2 %>% 
+  ggplot(aes(x=year, y=freq_lifeExp, color=continent)) + 
+  geom_point() + 
+  geom_line()
+
+#Table: The frequency of lower-than-median lifeExp over time
+#Median(60.71) is extracted from the whole data
+g2 %>%   
+  spread(key="continent", value="freq_lifeExp")
+  #Why this is not working?   
+  #reshape(idvar= "year", timevar= "continent", direction= "wide")
+
+#Calculating median for each time period (year)
+g3 <- gapminder %>%
+  select(country, continent, year, lifeExp) %>% 
+  group_by(year) %>% 
+  summarize(median_lifeExp= median(lifeExp))  
+g3
+
+g4 <- left_join(gapminder, g3) %>% 
+  select(country, continent, year, lifeExp, median_lifeExp) %>% 
+  mutate(below_mean= ifelse(lifeExp < median_lifeExp, 1, 0)) %>% 
+  group_by(year, continent) %>% 
+  summarize(freq_lifeExp= sum(below_mean)) 
+
+#Plot: The frequency of lower-than-median lifeExp over time
+#Medians are calculated for each year
+g4 %>% ggplot(aes(x=year, y=freq_lifeExp, color=continent)) + 
+  geom_point() +
+  geom_line()
+
+#Table: The frequency of lower-than-median lifeExp over time
+#Medians are calculated for each year
+g4 %>% spread(key="continent", value="freq_lifeExp")
+
+
+```
+
+Decent-looking table trial
+```{r results = 'asis'}
+knitr::kable(g4 %>% spread(key="continent", value="freq_lifeExp"))
+```
+
+- Find countries with interesting stories. Open-ended and, therefore, hard. Promising but unsuccessful attempts are encouraged. This will generate interesting questions to follow up on in class.
+```{r}
+g5 <- gapminder %>% 
+  filter(year==2007) %>% 
+  mutate(gdp = gdpPercap*pop)
+
+g5 %>% 
+  ggplot(aes(x=gdp, y=lifeExp)) + 
+  facet_wrap(~ continent) +
+  geom_point() 
+
+g5 %>% 
+  ggplot(aes(x=gdpPercap, y=lifeExp)) + 
+  facet_wrap(~ continent) +
+  geom_point() +
+  theme_bw()
+
+g5 %>% 
+  ggplot(aes(x=gdp, y=lifeExp)) + 
+  facet_wrap(~ continent) +
+  geom_point() +
+  scale_x_log10()
+
+g5 %>% 
+  ggplot(aes(x=gdpPercap, y=lifeExp)) + 
+  facet_wrap(~ continent) +
+  geom_point() +
+  theme_bw() +
+  scale_x_log10()
+
+#g6 <- g5 %>%
+#  filter(country %in% c("Canada", "Australia", "Korea, Rep.", "Japan", "China"))
+#g6 %>% 
+#  ggplot(aes(x=year, y=gdp, color=country)) + geom_point()
+```
+
+
+
+  
+  
+  
+  
+  
+  
