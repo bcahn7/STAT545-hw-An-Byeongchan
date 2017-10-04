@@ -322,6 +322,10 @@ knitr::kable(g4 %>% spread(key="continent", value="freq_lifeExp"))
  2007       47          8     15        1         0
 
 - Find countries with interesting stories. Open-ended and, therefore, hard. Promising but unsuccessful attempts are encouraged. This will generate interesting questions to follow up on in class.
+  
+I tried to see if there was any linear relationship between gdp(or gdpPercap) and lifeExp. Thus, I fixed the time period (year) to 2007. (gdp was calculated as gdpPercap*pop)
+First of all, I tried to make a plot of lifeExp versus gdp (and then gdpPercap) in each continent. However, the plots showed that there was no linear relationship between them.
+Then, I tried to scale gdp(and gdpPercap) in log10. 
 
 ```r
 g5 <- gapminder %>% 
@@ -331,7 +335,8 @@ g5 <- gapminder %>%
 g5 %>% 
   ggplot(aes(x=gdp, y=lifeExp)) + 
   facet_wrap(~ continent) +
-  geom_point() 
+  geom_point() +
+  labs(title="The plot of lifeExp versus gdp in 2007")
 ```
 
 ![](STAT545-hw03-An-Byeongchan_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
@@ -341,7 +346,8 @@ g5 %>%
   ggplot(aes(x=gdpPercap, y=lifeExp)) + 
   facet_wrap(~ continent) +
   geom_point() +
-  theme_bw()
+  theme_bw() +
+  labs(title="The plot of lifeExp versus gdpPercap in 2007")
 ```
 
 ![](STAT545-hw03-An-Byeongchan_files/figure-html/unnamed-chunk-7-2.png)<!-- -->
@@ -351,7 +357,8 @@ g5 %>%
   ggplot(aes(x=gdp, y=lifeExp)) + 
   facet_wrap(~ continent) +
   geom_point() +
-  scale_x_log10()
+  scale_x_log10() +
+  labs(title="The plot of lifeExp versus log10(gdp) in 2007")
 ```
 
 ![](STAT545-hw03-An-Byeongchan_files/figure-html/unnamed-chunk-7-3.png)<!-- -->
@@ -362,7 +369,8 @@ g5 %>%
   facet_wrap(~ continent) +
   geom_point() +
   theme_bw() +
-  scale_x_log10()
+  scale_x_log10() +
+  labs(title="The plot of lifeExp versus log10(gdpPercap) in 2007")
 ```
 
 ![](STAT545-hw03-An-Byeongchan_files/figure-html/unnamed-chunk-7-4.png)<!-- -->
@@ -374,6 +382,55 @@ g5 %>%
 #  ggplot(aes(x=year, y=gdp, color=country)) + geom_point()
 ```
 
+There might be linear relationship between lifeExp and log10(gdpPercap). Thus, I tried to compare each coefficients from linear regression.
+Even though there were quite big differences among intercepts, slope coefficients were quite similar. (I couldn't run linear regression for America.)
+Further analysis such as R squared is needed for better interpretation.
+
+```r
+fit_Africa <- lm(lifeExp ~ log(gdpPercap), 
+                 data = filter(g5,continent=="Africa"))
+#fit_America <- lm(lifeExp ~ log(gdpPercap), 
+#                  data =filter(g5,continent=="America")) 
+fit_Asia <- lm(lifeExp ~ log(gdpPercap), 
+                  data =filter(g5,continent=="Asia"))
+fit_Europe <- lm(lifeExp ~ log(gdpPercap), 
+                  data =filter(g5,continent=="Europe")) 
+fit_Oceania <- lm(lifeExp ~ log(gdpPercap), 
+                  data =filter(g5,continent=="Oceania"))
+fit_Africa$coefficients
+```
+
+```
+##    (Intercept) log(gdpPercap) 
+##      22.906824       4.260876
+```
+
+```r
+fit_Asia$coefficients
+```
+
+```
+##    (Intercept) log(gdpPercap) 
+##      25.650115       5.157259
+```
+
+```r
+fit_Europe$coefficients
+```
+
+```
+##    (Intercept) log(gdpPercap) 
+##      35.438954       4.226892
+```
+
+```r
+fit_Oceania$coefficients
+```
+
+```
+##    (Intercept) log(gdpPercap) 
+##      46.805720       3.295665
+```
 
 
   
