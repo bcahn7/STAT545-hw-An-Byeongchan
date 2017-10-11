@@ -68,6 +68,9 @@ Activity #2
   * Make a tibble with one row per year and columns for life expectancy for two or more countries.
     - Use `knitr::kable()` to make this table look pretty in your rendered homework.
     - Take advantage of this new data shape to scatterplot life expectancy for one country against that of another.
+    
+This tibble makes it easier to compare the life expectancy for the selected countries. `spread()` is useful for this situation. Also, is easier plotting a scatterplot values for one country against those of another. This is because all the countries' name becomes the header of each column.
+I compared the life expectancy for Japan with that for Republic of Korea. I added reference line which is `y=x`. It helps to analyze and interpret the plot. The life expectancy for Japan is always higher than that for Republic of Korea. 
 
 ```{r}
 g3 <- gapminder %>% 
@@ -75,6 +78,13 @@ g3 <- gapminder %>%
   filter(country %in% c("Korea, Rep.", "Japan", "Canada", "Australia")) %>% 
   spread(key = "country", value = "lifeExp")
 knitr::kable(g3, format = "markdown")
+
+g3 %>% 
+  ggplot(aes(x = `Korea, Rep.`, y = Japan, color = year)) +
+  geom_point() +
+  labs(title = "Life Expectancy for Korea and Japan") +
+  coord_fixed(xlim = c(45, 85), ylim = c(45, 85)) +
+  geom_abline()
 ```
 
 
@@ -84,14 +94,53 @@ Activity #3
   * Compute some measure of life expectancy (mean? median? min? max?) for all possible combinations of continent and year. Reshape that to have one row per year and one variable for each continent. Or the other way around: one row per continent and one variable per year.
     - Use `knitr::kable()` to make these tables look pretty in your rendered homework.
     - Is there a plot that is easier to make with the data in this shape versis the usual form? If so (or you think so), try it! Reflect.
+    
+
+I computed the `mean` of life expectancy for all possible combinations of continent and year by using `group_by()` and `summarize()`. Then, I reshaped it using `spread()`.
+As explained in the previous Activity, this reshaped form would be useful to compare one continent's life expectancy with another's. This is because all the continents' name becomes the header of each column.
+```{r}
+g4 <- gapminder %>%
+  select(country, continent, year, lifeExp) %>% 
+  group_by(year, continent) %>% 
+  summarize(lifeExp_mean = mean(lifeExp)) %>% 
+  spread(key = "continent", value = "lifeExp_mean")
+knitr::kable(g4, format = "markdown", digits = 2)
+
+g4 %>% 
+  ggplot(aes(x = Asia, y = Americas, color = year)) +
+  geom_point() +
+  geom_path() +
+  geom_text(aes(label = year), color = "black",size = 3.5, hjust = 1) +
+  labs(title = "The Average Life Expectancy for Europe and Americas") +
+  coord_fixed() +
+  geom_abline()
+
+```
+
+
 
 Activity #4
 
   * In [Window functions](http://stat545.com/block010_dplyr-end-single-table.html#window-functions), we formed a tibble with 24 rows: 2 per year, giving the country with both the lowest and highest life expectancy (in Asia). Take that table (or a similar one for all continents) and reshape it so you have one row per year or per year * continent combination.
+  
+I used the gapminder dataset and formed a dataset which shows the Asian countries with the highest life expectancy and the lowest in each year. I could keep the highest and lowest life expectancy observations in each year using `filter(min_rank(desc(lifeExp)) < 2 | min_rank(lifeExp) < 2)`. 
+```{r}
+my_gap <- gapminder%>%
+  filter(continent == "Asia") %>%
+  select(year, country, lifeExp) %>%
+  group_by(year) %>%
+  filter(min_rank(desc(lifeExp)) < 2 | min_rank(lifeExp) < 2) %>% 
+  mutate(min_rank(desc(lifeExp))) %>% 
+  arrange(year) %>% 
+  select(-lifeExp) %>% 
+  spread(key = "min_rank(desc(lifeExp))", value = "country") %>% 
+  rename(Highest =  `1`, Lowest  =  `2`)
+#  print(n = Inf)
 
-Activity #5
+knitr::kable(my_gap, format = "markdown")
+```
 
-  * Previous TA Andrew MacDonald has a nice [data manipulation sampler](https://gist.github.com/aammd/11386424). Make up a similar set of exercises for yourself, in the abstract or (even better) using Gapminder or other data, and solve them.
+
 
 ### Join, merge, look up
 
@@ -106,19 +155,52 @@ Activity #1
   * Create a second data frame, complementary to Gapminder. Join this with (part of) Gapminder using a `dplyr` join function and make some observations about the process and result. Explore the different types of joins. Examples of a second data frame you could build:
     - One row per country, a country variable and one or more variables with extra info, such as language spoken, NATO membership, national animal, or capitol city. If you really want to be helpful, you could attempt to make a pull request to resolve [this issue](https://github.com/jennybc/gapminder/issues/13), where I would like to bring ISO country codes into the gapminder package.
     - One row per continent, a continent variable and one or more variables with extra info, such as northern versus southern hemisphere.
+    
 
-Activity #2
+I created a second data frame complementary to Gapminder, which contained country, capital_city, and Language. For simplicity, I used gapminder data after 2000.
+```{r}
+extra_info <- data.frame(country=c("Korea, Rep.", "Japan", "China", "Canada","Australia", "United States", "Vatican City"),
+                     capital_city=c("Seoul", "Tokyo", "Beijing", "Ottawa","Canberra", "Washington, D.C.", "Vatican City"),
+                     Language = c("Korean", "Japanese", "Standard Mandarin", "English/French","English", "English", "Italian"))
+extra_info
 
-  * Create your own cheatsheet patterned [after mine](bit001_dplyr-cheatsheet.html) but focused on something you care about more than comics! Inspirational examples:
-    - Pets I have owned + breed + friendly vs. unfriendly + ??. Join to a table of pet breed, including variables for furry vs not furry, mammal true or false, etc.
-    - Movies and studios....
-    - Athletes and teams....
+gapminder_2000s <- gapminder %>% 
+  filter(year >= 2000)
+gapminder_2000s
+```
 
-You will likely need to iterate between your data prep and your joining to make your explorations comprehensive and interesting. For example, you will want a specific amount (or lack) of overlap between the two data.frames, in order to demonstrate all the different joins. You will want both the data frames to be as small as possible, while still retaining the expository value.
+As mentioned above, I did not specify a character vector of variables to join by using `by = "country"`. This was because there was only one variable in common. 
 
-Activity #3
+1. `semi_join()` creates a subset of the `gapminder_2000s`(which is on the left), which have the countries that are only found in the `extra_info`(which is on the right).
 
-  * This is really an optional add-on to either of the previous activities.
-  * Explore the base function `merge()`, which also does joins. Compare and contrast with dplyr joins.
-  * Explore the base function `match()`, which is related to joins and merges, but is really more of a "table lookup". Compare and contrast with a true join/merge.
-  
+2. `inner_join()` creates the dataset which has all the variables in `gapminder_2000s` and `extra_info`. The dataset only keeps observations available in both datasets. 
+
+3. `right_join()` creates the dataset which has all the variables in `gapminder_2000s` and `extra_info`. The dataset only keeps observations available in `extra_info`(which is on the right).
+
+4 `left_join()` is same as `right_join()` but the dataset keeps observations available in `gapminder_2000s`(which is on the left)
+
+5. `full_join()` creates the dataset which has all the variables in `gapminder_2000s` and `extra_info`. The dataset keeps all the observations available in both datasets.
+
+- The difference between `semi_join` and `inner_join` is that `semi_join()` takes only the variables on the left. This can be verified by seeing the dimension of each dataset. Inner-joined dataset's dimension is (12x6)(6 is same as the number of variables in `gapminder_2000s` ). On the contrary, the other one's dimension is (12x8).
+
+- Right_joined dataset has one more observation than inner-joined dataset. This is because `Vatican City` is not included in the `gapminder_2000s`. This also can be observed by comparing `left_join()` and `full_join()`
+
+
+```{r}
+#semi_join()
+semi_join(gapminder_2000s, extra_info)
+
+#inner_join()
+inner_join(gapminder_2000s, extra_info)
+
+#right_join()
+right_join(gapminder_2000s, extra_info)
+
+#left_join()
+left_join(gapminder_2000s, extra_info)
+
+#full_join()
+full_join(gapminder_2000s, extra_info)
+```
+
+

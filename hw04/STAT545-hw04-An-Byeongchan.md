@@ -147,6 +147,9 @@ Activity #2
   * Make a tibble with one row per year and columns for life expectancy for two or more countries.
     - Use `knitr::kable()` to make this table look pretty in your rendered homework.
     - Take advantage of this new data shape to scatterplot life expectancy for one country against that of another.
+    
+This tibble makes it easier to compare the life expectancy for the selected countries. `spread()` is useful for this situation. Also, is easier plotting a scatterplot values for one country against those of another. This is because all the countries' name becomes the header of each column.
+I compared the life expectancy for Japan with that for Republic of Korea. I added reference line which is `y=x`. It helps to analyze and interpret the plot. The life expectancy for Japan is always higher than that for Republic of Korea. 
 
 
 ```r
@@ -174,6 +177,17 @@ knitr::kable(g3, format = "markdown")
 | 2002|    80.370| 79.770| 82.000|      77.045|
 | 2007|    81.235| 80.653| 82.603|      78.623|
 
+```r
+g3 %>% 
+  ggplot(aes(x = `Korea, Rep.`, y = Japan, color = year)) +
+  geom_point() +
+  labs(title = "Life Expectancy for Korea and Japan") +
+  coord_fixed(xlim = c(45, 85), ylim = c(45, 85)) +
+  geom_abline()
+```
+
+![](STAT545-hw04-An-Byeongchan_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
+
 
 
 Activity #3
@@ -181,14 +195,92 @@ Activity #3
   * Compute some measure of life expectancy (mean? median? min? max?) for all possible combinations of continent and year. Reshape that to have one row per year and one variable for each continent. Or the other way around: one row per continent and one variable per year.
     - Use `knitr::kable()` to make these tables look pretty in your rendered homework.
     - Is there a plot that is easier to make with the data in this shape versis the usual form? If so (or you think so), try it! Reflect.
+    
+
+I computed the `mean` of life expectancy for all possible combinations of continent and year by using `group_by()` and `summarize()`. Then, I reshaped it using `spread()`.
+As explained in the previous Activity, this reshaped form would be useful to compare one continent's life expectancy with another's. This is because all the continents' name becomes the header of each column.
+
+```r
+g4 <- gapminder %>%
+  select(country, continent, year, lifeExp) %>% 
+  group_by(year, continent) %>% 
+  summarize(lifeExp_mean = mean(lifeExp)) %>% 
+  spread(key = "continent", value = "lifeExp_mean")
+knitr::kable(g4, format = "markdown", digits = 2)
+```
+
+
+
+| year| Africa| Americas|  Asia| Europe| Oceania|
+|----:|------:|--------:|-----:|------:|-------:|
+| 1952|  39.14|    53.28| 46.31|  64.41|   69.25|
+| 1957|  41.27|    55.96| 49.32|  66.70|   70.30|
+| 1962|  43.32|    58.40| 51.56|  68.54|   71.09|
+| 1967|  45.33|    60.41| 54.66|  69.74|   71.31|
+| 1972|  47.45|    62.39| 57.32|  70.78|   71.91|
+| 1977|  49.58|    64.39| 59.61|  71.94|   72.85|
+| 1982|  51.59|    66.23| 62.62|  72.81|   74.29|
+| 1987|  53.34|    68.09| 64.85|  73.64|   75.32|
+| 1992|  53.63|    69.57| 66.54|  74.44|   76.94|
+| 1997|  53.60|    71.15| 68.02|  75.51|   78.19|
+| 2002|  53.33|    72.42| 69.23|  76.70|   79.74|
+| 2007|  54.81|    73.61| 70.73|  77.65|   80.72|
+
+```r
+g4 %>% 
+  ggplot(aes(x = Asia, y = Americas, color = year)) +
+  geom_point() +
+  geom_path() +
+  geom_text(aes(label = year), color = "black",size = 3.5, hjust = 1) +
+  labs(title = "The Average Life Expectancy for Europe and Americas") +
+  coord_fixed() +
+  geom_abline()
+```
+
+![](STAT545-hw04-An-Byeongchan_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
+
+
 
 Activity #4
 
   * In [Window functions](http://stat545.com/block010_dplyr-end-single-table.html#window-functions), we formed a tibble with 24 rows: 2 per year, giving the country with both the lowest and highest life expectancy (in Asia). Take that table (or a similar one for all continents) and reshape it so you have one row per year or per year * continent combination.
+  
+I used the gapminder dataset and formed a dataset which shows the Asian countries with the highest life expectancy and the lowest in each year. I could keep the highest and lowest life expectancy observations in each year using `filter(min_rank(desc(lifeExp)) < 2 | min_rank(lifeExp) < 2)`. 
 
-Activity #5
+```r
+my_gap <- gapminder%>%
+  filter(continent == "Asia") %>%
+  select(year, country, lifeExp) %>%
+  group_by(year) %>%
+  filter(min_rank(desc(lifeExp)) < 2 | min_rank(lifeExp) < 2) %>% 
+  mutate(min_rank(desc(lifeExp))) %>% 
+  arrange(year) %>% 
+  select(-lifeExp) %>% 
+  spread(key = "min_rank(desc(lifeExp))", value = "country") %>% 
+  rename(Highest =  `1`, Lowest  =  `2`)
+#  print(n = Inf)
 
-  * Previous TA Andrew MacDonald has a nice [data manipulation sampler](https://gist.github.com/aammd/11386424). Make up a similar set of exercises for yourself, in the abstract or (even better) using Gapminder or other data, and solve them.
+knitr::kable(my_gap, format = "markdown")
+```
+
+
+
+| year|Highest |Lowest      |
+|----:|:-------|:-----------|
+| 1952|Israel  |Afghanistan |
+| 1957|Israel  |Afghanistan |
+| 1962|Israel  |Afghanistan |
+| 1967|Japan   |Afghanistan |
+| 1972|Japan   |Afghanistan |
+| 1977|Japan   |Cambodia    |
+| 1982|Japan   |Afghanistan |
+| 1987|Japan   |Afghanistan |
+| 1992|Japan   |Afghanistan |
+| 1997|Japan   |Afghanistan |
+| 2002|Japan   |Afghanistan |
+| 2007|Japan   |Afghanistan |
+
+
 
 ### Join, merge, look up
 
@@ -203,19 +295,228 @@ Activity #1
   * Create a second data frame, complementary to Gapminder. Join this with (part of) Gapminder using a `dplyr` join function and make some observations about the process and result. Explore the different types of joins. Examples of a second data frame you could build:
     - One row per country, a country variable and one or more variables with extra info, such as language spoken, NATO membership, national animal, or capitol city. If you really want to be helpful, you could attempt to make a pull request to resolve [this issue](https://github.com/jennybc/gapminder/issues/13), where I would like to bring ISO country codes into the gapminder package.
     - One row per continent, a continent variable and one or more variables with extra info, such as northern versus southern hemisphere.
+    
 
-Activity #2
+I created a second data frame complementary to Gapminder, which contained country, capital_city, and Language. For simplicity, I used gapminder data after 2000.
 
-  * Create your own cheatsheet patterned [after mine](bit001_dplyr-cheatsheet.html) but focused on something you care about more than comics! Inspirational examples:
-    - Pets I have owned + breed + friendly vs. unfriendly + ??. Join to a table of pet breed, including variables for furry vs not furry, mammal true or false, etc.
-    - Movies and studios....
-    - Athletes and teams....
+```r
+extra_info <- data.frame(country=c("Korea, Rep.", "Japan", "China", "Canada","Australia", "United States", "Vatican City"),
+                     capital_city=c("Seoul", "Tokyo", "Beijing", "Ottawa","Canberra", "Washington, D.C.", "Vatican City"),
+                     Language = c("Korean", "Japanese", "Standard Mandarin", "English/French","English", "English", "Italian"))
+extra_info
+```
 
-You will likely need to iterate between your data prep and your joining to make your explorations comprehensive and interesting. For example, you will want a specific amount (or lack) of overlap between the two data.frames, in order to demonstrate all the different joins. You will want both the data frames to be as small as possible, while still retaining the expository value.
+```
+##         country     capital_city          Language
+## 1   Korea, Rep.            Seoul            Korean
+## 2         Japan            Tokyo          Japanese
+## 3         China          Beijing Standard Mandarin
+## 4        Canada           Ottawa    English/French
+## 5     Australia         Canberra           English
+## 6 United States Washington, D.C.           English
+## 7  Vatican City     Vatican City           Italian
+```
 
-Activity #3
+```r
+gapminder_2000s <- gapminder %>% 
+  filter(year >= 2000)
+gapminder_2000s
+```
 
-  * This is really an optional add-on to either of the previous activities.
-  * Explore the base function `merge()`, which also does joins. Compare and contrast with dplyr joins.
-  * Explore the base function `match()`, which is related to joins and merges, but is really more of a "table lookup". Compare and contrast with a true join/merge.
-  
+```
+## # A tibble: 284 x 6
+##        country continent  year lifeExp      pop  gdpPercap
+##         <fctr>    <fctr> <int>   <dbl>    <int>      <dbl>
+##  1 Afghanistan      Asia  2002  42.129 25268405   726.7341
+##  2 Afghanistan      Asia  2007  43.828 31889923   974.5803
+##  3     Albania    Europe  2002  75.651  3508512  4604.2117
+##  4     Albania    Europe  2007  76.423  3600523  5937.0295
+##  5     Algeria    Africa  2002  70.994 31287142  5288.0404
+##  6     Algeria    Africa  2007  72.301 33333216  6223.3675
+##  7      Angola    Africa  2002  41.003 10866106  2773.2873
+##  8      Angola    Africa  2007  42.731 12420476  4797.2313
+##  9   Argentina  Americas  2002  74.340 38331121  8797.6407
+## 10   Argentina  Americas  2007  75.320 40301927 12779.3796
+## # ... with 274 more rows
+```
+
+As mentioned above, I did not specify a character vector of variables to join by using `by = "country"`. This was because there was only one variable in common. 
+
+1. `semi_join()` creates a subset of the `gapminder_2000s`(which is on the left), which have the countries that are only found in the `extra_info`(which is on the right).
+
+2. `inner_join()` creates the dataset which has all the variables in `gapminder_2000s` and `extra_info`. The dataset only keeps observations available in both datasets. 
+
+3. `right_join()` creates the dataset which has all the variables in `gapminder_2000s` and `extra_info`. The dataset only keeps observations available in `extra_info`(which is on the right).
+
+4 `left_join()` is same as `right_join()` but the dataset keeps observations available in `gapminder_2000s`(which is on the left)
+
+5. `full_join()` creates the dataset which has all the variables in `gapminder_2000s` and `extra_info`. The dataset keeps all the observations available in both datasets.
+
+- The difference between `semi_join` and `inner_join` is that `semi_join()` takes only the variables on the left. This can be verified by seeing the dimension of each dataset. Inner-joined dataset's dimension is (12x6)(6 is same as the number of variables in `gapminder_2000s` ). On the contrary, the other one's dimension is (12x8).
+
+- Right_joined dataset has one more observation than inner-joined dataset. This is because `Vatican City` is not included in the `gapminder_2000s`. This also can be observed by comparing `left_join()` and `full_join()`
+
+
+
+```r
+#semi_join()
+semi_join(gapminder_2000s, extra_info)
+```
+
+```
+## Joining, by = "country"
+```
+
+```
+## Warning: Column `country` joining factors with different levels, coercing
+## to character vector
+```
+
+```
+## # A tibble: 12 x 6
+##          country continent  year lifeExp        pop gdpPercap
+##           <fctr>    <fctr> <int>   <dbl>      <int>     <dbl>
+##  1     Australia   Oceania  2002  80.370   19546792 30687.755
+##  2     Australia   Oceania  2007  81.235   20434176 34435.367
+##  3        Canada  Americas  2002  79.770   31902268 33328.965
+##  4        Canada  Americas  2007  80.653   33390141 36319.235
+##  5         China      Asia  2002  72.028 1280400000  3119.281
+##  6         China      Asia  2007  72.961 1318683096  4959.115
+##  7         Japan      Asia  2002  82.000  127065841 28604.592
+##  8         Japan      Asia  2007  82.603  127467972 31656.068
+##  9   Korea, Rep.      Asia  2002  77.045   47969150 19233.988
+## 10   Korea, Rep.      Asia  2007  78.623   49044790 23348.140
+## 11 United States  Americas  2002  77.310  287675526 39097.100
+## 12 United States  Americas  2007  78.242  301139947 42951.653
+```
+
+```r
+#inner_join()
+inner_join(gapminder_2000s, extra_info)
+```
+
+```
+## Joining, by = "country"
+```
+
+```
+## Warning: Column `country` joining factors with different levels, coercing
+## to character vector
+```
+
+```
+## # A tibble: 12 x 8
+##          country continent  year lifeExp        pop gdpPercap
+##            <chr>    <fctr> <int>   <dbl>      <int>     <dbl>
+##  1     Australia   Oceania  2002  80.370   19546792 30687.755
+##  2     Australia   Oceania  2007  81.235   20434176 34435.367
+##  3        Canada  Americas  2002  79.770   31902268 33328.965
+##  4        Canada  Americas  2007  80.653   33390141 36319.235
+##  5         China      Asia  2002  72.028 1280400000  3119.281
+##  6         China      Asia  2007  72.961 1318683096  4959.115
+##  7         Japan      Asia  2002  82.000  127065841 28604.592
+##  8         Japan      Asia  2007  82.603  127467972 31656.068
+##  9   Korea, Rep.      Asia  2002  77.045   47969150 19233.988
+## 10   Korea, Rep.      Asia  2007  78.623   49044790 23348.140
+## 11 United States  Americas  2002  77.310  287675526 39097.100
+## 12 United States  Americas  2007  78.242  301139947 42951.653
+## # ... with 2 more variables: capital_city <fctr>, Language <fctr>
+```
+
+```r
+#right_join()
+right_join(gapminder_2000s, extra_info)
+```
+
+```
+## Joining, by = "country"
+```
+
+```
+## Warning: Column `country` joining factors with different levels, coercing
+## to character vector
+```
+
+```
+## # A tibble: 13 x 8
+##          country continent  year lifeExp        pop gdpPercap
+##            <chr>    <fctr> <int>   <dbl>      <int>     <dbl>
+##  1   Korea, Rep.      Asia  2002  77.045   47969150 19233.988
+##  2   Korea, Rep.      Asia  2007  78.623   49044790 23348.140
+##  3         Japan      Asia  2002  82.000  127065841 28604.592
+##  4         Japan      Asia  2007  82.603  127467972 31656.068
+##  5         China      Asia  2002  72.028 1280400000  3119.281
+##  6         China      Asia  2007  72.961 1318683096  4959.115
+##  7        Canada  Americas  2002  79.770   31902268 33328.965
+##  8        Canada  Americas  2007  80.653   33390141 36319.235
+##  9     Australia   Oceania  2002  80.370   19546792 30687.755
+## 10     Australia   Oceania  2007  81.235   20434176 34435.367
+## 11 United States  Americas  2002  77.310  287675526 39097.100
+## 12 United States  Americas  2007  78.242  301139947 42951.653
+## 13  Vatican City      <NA>    NA      NA         NA        NA
+## # ... with 2 more variables: capital_city <fctr>, Language <fctr>
+```
+
+```r
+#left_join()
+left_join(gapminder_2000s, extra_info)
+```
+
+```
+## Joining, by = "country"
+```
+
+```
+## Warning: Column `country` joining factors with different levels, coercing
+## to character vector
+```
+
+```
+## # A tibble: 284 x 8
+##        country continent  year lifeExp      pop  gdpPercap capital_city
+##          <chr>    <fctr> <int>   <dbl>    <int>      <dbl>       <fctr>
+##  1 Afghanistan      Asia  2002  42.129 25268405   726.7341         <NA>
+##  2 Afghanistan      Asia  2007  43.828 31889923   974.5803         <NA>
+##  3     Albania    Europe  2002  75.651  3508512  4604.2117         <NA>
+##  4     Albania    Europe  2007  76.423  3600523  5937.0295         <NA>
+##  5     Algeria    Africa  2002  70.994 31287142  5288.0404         <NA>
+##  6     Algeria    Africa  2007  72.301 33333216  6223.3675         <NA>
+##  7      Angola    Africa  2002  41.003 10866106  2773.2873         <NA>
+##  8      Angola    Africa  2007  42.731 12420476  4797.2313         <NA>
+##  9   Argentina  Americas  2002  74.340 38331121  8797.6407         <NA>
+## 10   Argentina  Americas  2007  75.320 40301927 12779.3796         <NA>
+## # ... with 274 more rows, and 1 more variables: Language <fctr>
+```
+
+```r
+#full_join()
+full_join(gapminder_2000s, extra_info)
+```
+
+```
+## Joining, by = "country"
+```
+
+```
+## Warning: Column `country` joining factors with different levels, coercing
+## to character vector
+```
+
+```
+## # A tibble: 285 x 8
+##        country continent  year lifeExp      pop  gdpPercap capital_city
+##          <chr>    <fctr> <int>   <dbl>    <int>      <dbl>       <fctr>
+##  1 Afghanistan      Asia  2002  42.129 25268405   726.7341         <NA>
+##  2 Afghanistan      Asia  2007  43.828 31889923   974.5803         <NA>
+##  3     Albania    Europe  2002  75.651  3508512  4604.2117         <NA>
+##  4     Albania    Europe  2007  76.423  3600523  5937.0295         <NA>
+##  5     Algeria    Africa  2002  70.994 31287142  5288.0404         <NA>
+##  6     Algeria    Africa  2007  72.301 33333216  6223.3675         <NA>
+##  7      Angola    Africa  2002  41.003 10866106  2773.2873         <NA>
+##  8      Angola    Africa  2007  42.731 12420476  4797.2313         <NA>
+##  9   Argentina  Americas  2002  74.340 38331121  8797.6407         <NA>
+## 10   Argentina  Americas  2007  75.320 40301927 12779.3796         <NA>
+## # ... with 275 more rows, and 1 more variables: Language <fctr>
+```
+
+
