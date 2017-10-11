@@ -1,0 +1,124 @@
+---
+title: "STAT545-hw04-An-Byeongchan"
+output:
+  html_document:
+    keep_md: yes
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(fig.width=4, fig.height=3)
+```
+
+```{r}
+suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(gapminder))
+```
+
+
+### Choose your own adventure
+
+- Pick a join prompt and do it.
+I used the dataset `areas` which was dealt with in class. I tried to combine gapminder data in 2007 with `areas`. As I used right_join(), `g1` preserves all the rows of `areas`. Here, I did not specify a character vector of variables to join by using `by = "country"`. This was because there was only one variable in common. 
+In addition, I compared `full_join()` with `left_join()`. Because `gapminder` does not have `"Vatican City"` which is included in `areas`, `full_join()` creates one more observation (which is for `Vatican City`), compared to `left_join()`
+```{r}
+areas <- data.frame(country=c("Canada", "United States", "India", "Vatican City"),
+                     area=c(998.5*10^6, 983.4*10^6, 328.7*10^6, 44))
+
+g1 <- gapminder %>% 
+  filter(year == 2007) %>% 
+  right_join(areas)
+g1
+# The number of observations using full_join()
+nrow(full_join(gapminder, areas, by = "country"))
+# The number of observations using left_join()
+nrow(left_join(gapminder, areas, by = "country"))
+```
+
+- Pick one of the data reshaping prompts and do it.
+I trid to use `gather()` for long format and `spread()` for wide format.
+```{r}
+g2 <- g1 %>% 
+  select(country, continent, pop, gdpPercap, area) %>% 
+  gather(key = "Measures", value = "My_value", pop, gdpPercap, area)
+g2
+g2 %>% 
+  spread(key = "Measures", value = "My_value")
+```
+
+
+### General data reshaping and relationship to aggregation
+
+__Problem__: You have data in one "shape" but you wish it were in another. Usually this is because the alternative shape is superior for presenting a table, making a figure, or doing aggregation and statistical analysis.
+
+__Solution__: Reshape your data. For simple reshaping, `gather()` and `spread()` from `tidyr` will suffice. Do the thing that it possible / easier now that your data has a new shape.
+
+__Prompts__:
+
+Activity #1
+- two `tidyr` functions
+1. `gather(key = "key", value = "value", ...)`
+
+2. `spread(key = "key", value = "value", ...)`
+Make sure that there is no duplicate to use `spread()`. When there are more-than-one observations (which have same values except for "key" values) for the same "key" value, the function does not work. This can be fixed by distinguishing each observation using other variables or using `dcast()` putting the mean, variance, or sum to the value (`dcast()` is the function in `reshape2`)
+
+Tyler Rinker's [minimal guide to `tidyr`](https://github.com/trinker/tidyr_in_a_nutshell).
+
+Activity #2
+  * Make a tibble with one row per year and columns for life expectancy for two or more countries.
+    - Use `knitr::kable()` to make this table look pretty in your rendered homework.
+    - Take advantage of this new data shape to scatterplot life expectancy for one country against that of another.
+
+```{r}
+g3 <- gapminder %>% 
+  select(country, year, lifeExp) %>% 
+  filter(country %in% c("Korea, Rep.", "Japan", "Canada", "Australia")) %>% 
+  spread(key = "country", value = "lifeExp")
+knitr::kable(g3)
+```
+
+
+
+Activity #3
+
+  * Compute some measure of life expectancy (mean? median? min? max?) for all possible combinations of continent and year. Reshape that to have one row per year and one variable for each continent. Or the other way around: one row per continent and one variable per year.
+    - Use `knitr::kable()` to make these tables look pretty in your rendered homework.
+    - Is there a plot that is easier to make with the data in this shape versis the usual form? If so (or you think so), try it! Reflect.
+
+Activity #4
+
+  * In [Window functions](http://stat545.com/block010_dplyr-end-single-table.html#window-functions), we formed a tibble with 24 rows: 2 per year, giving the country with both the lowest and highest life expectancy (in Asia). Take that table (or a similar one for all continents) and reshape it so you have one row per year or per year * continent combination.
+
+Activity #5
+
+  * Previous TA Andrew MacDonald has a nice [data manipulation sampler](https://gist.github.com/aammd/11386424). Make up a similar set of exercises for yourself, in the abstract or (even better) using Gapminder or other data, and solve them.
+
+### Join, merge, look up
+
+__Problem__: You have two data sources and you need info from both in one new data object.
+
+__Solution__: Perform a __join__, which borrows terminology from the database world, specifically SQL.
+
+__Prompts__:
+
+Activity #1
+
+  * Create a second data frame, complementary to Gapminder. Join this with (part of) Gapminder using a `dplyr` join function and make some observations about the process and result. Explore the different types of joins. Examples of a second data frame you could build:
+    - One row per country, a country variable and one or more variables with extra info, such as language spoken, NATO membership, national animal, or capitol city. If you really want to be helpful, you could attempt to make a pull request to resolve [this issue](https://github.com/jennybc/gapminder/issues/13), where I would like to bring ISO country codes into the gapminder package.
+    - One row per continent, a continent variable and one or more variables with extra info, such as northern versus southern hemisphere.
+
+Activity #2
+
+  * Create your own cheatsheet patterned [after mine](bit001_dplyr-cheatsheet.html) but focused on something you care about more than comics! Inspirational examples:
+    - Pets I have owned + breed + friendly vs. unfriendly + ??. Join to a table of pet breed, including variables for furry vs not furry, mammal true or false, etc.
+    - Movies and studios....
+    - Athletes and teams....
+
+You will likely need to iterate between your data prep and your joining to make your explorations comprehensive and interesting. For example, you will want a specific amount (or lack) of overlap between the two data.frames, in order to demonstrate all the different joins. You will want both the data frames to be as small as possible, while still retaining the expository value.
+
+Activity #3
+
+  * This is really an optional add-on to either of the previous activities.
+  * Explore the base function `merge()`, which also does joins. Compare and contrast with dplyr joins.
+  * Explore the base function `match()`, which is related to joins and merges, but is really more of a "table lookup". Compare and contrast with a true join/merge.
+  
