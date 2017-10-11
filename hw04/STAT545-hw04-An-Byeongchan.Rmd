@@ -74,7 +74,7 @@ g3 <- gapminder %>%
   select(country, year, lifeExp) %>% 
   filter(country %in% c("Korea, Rep.", "Japan", "Canada", "Australia")) %>% 
   spread(key = "country", value = "lifeExp")
-knitr::kable(g3)
+knitr::kable(g3, format = "markdown")
 ```
 
 

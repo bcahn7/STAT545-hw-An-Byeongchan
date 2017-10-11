@@ -202,7 +202,7 @@ g2</code></pre>
   select(country, year, lifeExp) %&gt;% 
   filter(country %in% c(&quot;Korea, Rep.&quot;, &quot;Japan&quot;, &quot;Canada&quot;, &quot;Australia&quot;)) %&gt;% 
   spread(key = &quot;country&quot;, value = &quot;lifeExp&quot;)
-knitr::kable(g3)</code></pre>
+knitr::kable(g3, format = &quot;markdown&quot;)</code></pre>
 <table>
 <thead>
 <tr class="header">
