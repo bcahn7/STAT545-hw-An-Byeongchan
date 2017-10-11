@@ -18,9 +18,10 @@ suppressPackageStartupMessages(library(gapminder))
 
 ### Choose your own adventure
 
-- Pick a join prompt and do it.
-I used the dataset `areas` which was dealt with in class. I tried to combine gapminder data in 2007 with `areas`. As I used right_join(), `g1` preserves all the rows of `areas`. Here, I did not specify a character vector of variables to join by using `by = "country"`. This was because there was only one variable in common. 
-In addition, I compared `full_join()` with `left_join()`. Because `gapminder` does not have `"Vatican City"` which is included in `areas`, `full_join()` creates one more observation (which is for `Vatican City`), compared to `left_join()`
+- Pick a join prompt and do it.  
+  
+I used the dataset `areas` which was dealt with in class. I tried to combine gapminder data in 2007 with `areas`. As I used right_join(), `g1` preserves all the rows of `areas`. Here, I did not specify a character vector of variables to join by using `by = "country"`. This was because there was only one variable in common.  
+In addition, I compared `full_join()` with `left_join()`. Because `gapminder` does not have `"Vatican City"` which is included in `areas`, `full_join()` creates one more observation (which is for `Vatican City`), compared to `left_join()`  
 ```{r}
 areas <- data.frame(country=c("Canada", "United States", "India", "Vatican City"),
                      area=c(998.5*10^6, 983.4*10^6, 328.7*10^6, 44))
@@ -35,7 +36,7 @@ nrow(full_join(gapminder, areas, by = "country"))
 nrow(left_join(gapminder, areas, by = "country"))
 ```
 
-- Pick one of the data reshaping prompts and do it.
+- Pick one of the data reshaping prompts and do it.  
 I trid to use `gather()` for long format and `spread()` for wide format.
 ```{r}
 g2 <- g1 %>% 
@@ -57,19 +58,19 @@ __Prompts__:
 
 Activity #1
 - two `tidyr` functions
-1. `gather(key = "key", value = "value", ...)`
-
-2. `spread(key = "key", value = "value", ...)`
+1. `gather(key = "key", value = "value", ...)`  
+  
+2. `spread(key = "key", value = "value", ...)`  
 Make sure that there is no duplicate to use `spread()`. When there are more-than-one observations (which have same values except for "key" values) for the same "key" value, the function does not work. This can be fixed by distinguishing each observation using other variables or using `dcast()` putting the mean, variance, or sum to the value (`dcast()` is the function in `reshape2`)
 
-Tyler Rinker's [minimal guide to `tidyr`](https://github.com/trinker/tidyr_in_a_nutshell).
+Tyler Rinker's [minimal guide to `tidyr`](https://github.com/trinker/tidyr_in_a_nutshell).  
 
 Activity #2
   * Make a tibble with one row per year and columns for life expectancy for two or more countries.
     - Use `knitr::kable()` to make this table look pretty in your rendered homework.
     - Take advantage of this new data shape to scatterplot life expectancy for one country against that of another.
     
-This tibble makes it easier to compare the life expectancy for the selected countries. `spread()` is useful for this situation. Also, is easier plotting a scatterplot values for one country against those of another. This is because all the countries' name becomes the header of each column.
+This tibble makes it easier to compare the life expectancy for the selected countries. `spread()` is useful for this situation. Also, is easier plotting a scatterplot values for one country against those of another. This is because all the countries' name becomes the header of each column.  
 I compared the life expectancy for Japan with that for Republic of Korea. I added reference line which is `y=x`. It helps to analyze and interpret the plot. The life expectancy for Japan is always higher than that for Republic of Korea. 
 
 ```{r}
@@ -96,8 +97,8 @@ Activity #3
     - Is there a plot that is easier to make with the data in this shape versis the usual form? If so (or you think so), try it! Reflect.
     
 
-I computed the `mean` of life expectancy for all possible combinations of continent and year by using `group_by()` and `summarize()`. Then, I reshaped it using `spread()`.
-As explained in the previous Activity, this reshaped form would be useful to compare one continent's life expectancy with another's. This is because all the continents' name becomes the header of each column.
+I computed the `mean` of life expectancy for all possible combinations of continent and year by using `group_by()` and `summarize()`. Then, I reshaped it using `spread()`.  
+As explained in the previous Activity, this reshaped form would be useful to compare one continent's life expectancy with another's. This is because all the continents' name becomes the header of each column.  
 ```{r}
 g4 <- gapminder %>%
   select(country, continent, year, lifeExp) %>% 
@@ -177,7 +178,7 @@ As mentioned above, I did not specify a character vector of variables to join by
 
 3. `right_join()` creates the dataset which has all the variables in `gapminder_2000s` and `extra_info`. The dataset only keeps observations available in `extra_info`(which is on the right).
 
-4 `left_join()` is same as `right_join()` but the dataset keeps observations available in `gapminder_2000s`(which is on the left)
+4. `left_join()` is same as `right_join()` but the dataset keeps observations available in `gapminder_2000s`(which is on the left)
 
 5. `full_join()` creates the dataset which has all the variables in `gapminder_2000s` and `extra_info`. The dataset keeps all the observations available in both datasets.
 

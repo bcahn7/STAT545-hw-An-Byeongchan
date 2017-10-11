@@ -126,8 +126,10 @@ $(document).ready(function () {
 <div id="choose-your-own-adventure" class="section level3">
 <h3>Choose your own adventure</h3>
 <ul>
-<li>Pick a join prompt and do it. I used the dataset <code>areas</code> which was dealt with in class. I tried to combine gapminder data in 2007 with <code>areas</code>. As I used right_join(), <code>g1</code> preserves all the rows of <code>areas</code>. Here, I did not specify a character vector of variables to join by using <code>by = &quot;country&quot;</code>. This was because there was only one variable in common. In addition, I compared <code>full_join()</code> with <code>left_join()</code>. Because <code>gapminder</code> does not have <code>&quot;Vatican City&quot;</code> which is included in <code>areas</code>, <code>full_join()</code> creates one more observation (which is for <code>Vatican City</code>), compared to <code>left_join()</code></li>
+<li>Pick a join prompt and do it.</li>
 </ul>
+<p>I used the dataset <code>areas</code> which was dealt with in class. I tried to combine gapminder data in 2007 with <code>areas</code>. As I used right_join(), <code>g1</code> preserves all the rows of <code>areas</code>. Here, I did not specify a character vector of variables to join by using <code>by = &quot;country&quot;</code>. This was because there was only one variable in common.<br />
+In addition, I compared <code>full_join()</code> with <code>left_join()</code>. Because <code>gapminder</code> does not have <code>&quot;Vatican City&quot;</code> which is included in <code>areas</code>, <code>full_join()</code> creates one more observation (which is for <code>Vatican City</code>), compared to <code>left_join()</code></p>
 <pre class="r"><code>areas &lt;- data.frame(country=c(&quot;Canada&quot;, &quot;United States&quot;, &quot;India&quot;, &quot;Vatican City&quot;),
                      area=c(998.5*10^6, 983.4*10^6, 328.7*10^6, 44))
 
@@ -156,7 +158,8 @@ nrow(left_join(gapminder, areas, by = &quot;country&quot;))</code></pre>
 ## to character vector</code></pre>
 <pre><code>## [1] 1704</code></pre>
 <ul>
-<li>Pick one of the data reshaping prompts and do it. I trid to use <code>gather()</code> for long format and <code>spread()</code> for wide format.</li>
+<li>Pick one of the data reshaping prompts and do it.<br />
+I trid to use <code>gather()</code> for long format and <code>spread()</code> for wide format.</li>
 </ul>
 <pre class="r"><code>g2 &lt;- g1 %&gt;% 
   select(country, continent, pop, gdpPercap, area) %&gt;% 
@@ -194,11 +197,13 @@ g2</code></pre>
 <p><strong>Prompts</strong>:</p>
 <p>Activity #1 - two <code>tidyr</code> functions 1. <code>gather(key = &quot;key&quot;, value = &quot;value&quot;, ...)</code></p>
 <ol start="2" style="list-style-type: decimal">
-<li><code>spread(key = &quot;key&quot;, value = &quot;value&quot;, ...)</code> Make sure that there is no duplicate to use <code>spread()</code>. When there are more-than-one observations (which have same values except for “key” values) for the same “key” value, the function does not work. This can be fixed by distinguishing each observation using other variables or using <code>dcast()</code> putting the mean, variance, or sum to the value (<code>dcast()</code> is the function in <code>reshape2</code>)</li>
+<li><code>spread(key = &quot;key&quot;, value = &quot;value&quot;, ...)</code><br />
+Make sure that there is no duplicate to use <code>spread()</code>. When there are more-than-one observations (which have same values except for “key” values) for the same “key” value, the function does not work. This can be fixed by distinguishing each observation using other variables or using <code>dcast()</code> putting the mean, variance, or sum to the value (<code>dcast()</code> is the function in <code>reshape2</code>)</li>
 </ol>
 <p>Tyler Rinker’s <a href="https://github.com/trinker/tidyr_in_a_nutshell">minimal guide to <code>tidyr</code></a>.</p>
 <p>Activity #2 * Make a tibble with one row per year and columns for life expectancy for two or more countries. - Use <code>knitr::kable()</code> to make this table look pretty in your rendered homework. - Take advantage of this new data shape to scatterplot life expectancy for one country against that of another.</p>
-<p>This tibble makes it easier to compare the life expectancy for the selected countries. <code>spread()</code> is useful for this situation. Also, is easier plotting a scatterplot values for one country against those of another. This is because all the countries’ name becomes the header of each column. I compared the life expectancy for Japan with that for Republic of Korea. I added reference line which is <code>y=x</code>. It helps to analyze and interpret the plot. The life expectancy for Japan is always higher than that for Republic of Korea.</p>
+<p>This tibble makes it easier to compare the life expectancy for the selected countries. <code>spread()</code> is useful for this situation. Also, is easier plotting a scatterplot values for one country against those of another. This is because all the countries’ name becomes the header of each column.<br />
+I compared the life expectancy for Japan with that for Republic of Korea. I added reference line which is <code>y=x</code>. It helps to analyze and interpret the plot. The life expectancy for Japan is always higher than that for Republic of Korea.</p>
 <pre class="r"><code>g3 &lt;- gapminder %&gt;% 
   select(country, year, lifeExp) %&gt;% 
   filter(country %in% c(&quot;Korea, Rep.&quot;, &quot;Japan&quot;, &quot;Canada&quot;, &quot;Australia&quot;)) %&gt;% 
@@ -316,7 +321,8 @@ knitr::kable(g3, format = &quot;markdown&quot;)</code></pre>
 <li>Is there a plot that is easier to make with the data in this shape versis the usual form? If so (or you think so), try it! Reflect.</li>
 </ul></li>
 </ul>
-<p>I computed the <code>mean</code> of life expectancy for all possible combinations of continent and year by using <code>group_by()</code> and <code>summarize()</code>. Then, I reshaped it using <code>spread()</code>. As explained in the previous Activity, this reshaped form would be useful to compare one continent’s life expectancy with another’s. This is because all the continents’ name becomes the header of each column.</p>
+<p>I computed the <code>mean</code> of life expectancy for all possible combinations of continent and year by using <code>group_by()</code> and <code>summarize()</code>. Then, I reshaped it using <code>spread()</code>.<br />
+As explained in the previous Activity, this reshaped form would be useful to compare one continent’s life expectancy with another’s. This is because all the continents’ name becomes the header of each column.</p>
 <pre class="r"><code>g4 &lt;- gapminder %&gt;%
   select(country, continent, year, lifeExp) %&gt;% 
   group_by(year, continent) %&gt;% 
@@ -580,10 +586,8 @@ gapminder_2000s</code></pre>
 <li><p><code>semi_join()</code> creates a subset of the <code>gapminder_2000s</code>(which is on the left), which have the countries that are only found in the <code>extra_info</code>(which is on the right).</p></li>
 <li><p><code>inner_join()</code> creates the dataset which has all the variables in <code>gapminder_2000s</code> and <code>extra_info</code>. The dataset only keeps observations available in both datasets.</p></li>
 <li><p><code>right_join()</code> creates the dataset which has all the variables in <code>gapminder_2000s</code> and <code>extra_info</code>. The dataset only keeps observations available in <code>extra_info</code>(which is on the right).</p></li>
-</ol>
-<p>4 <code>left_join()</code> is same as <code>right_join()</code> but the dataset keeps observations available in <code>gapminder_2000s</code>(which is on the left)</p>
-<ol start="5" style="list-style-type: decimal">
-<li><code>full_join()</code> creates the dataset which has all the variables in <code>gapminder_2000s</code> and <code>extra_info</code>. The dataset keeps all the observations available in both datasets.</li>
+<li><p><code>left_join()</code> is same as <code>right_join()</code> but the dataset keeps observations available in <code>gapminder_2000s</code>(which is on the left)</p></li>
+<li><p><code>full_join()</code> creates the dataset which has all the variables in <code>gapminder_2000s</code> and <code>extra_info</code>. The dataset keeps all the observations available in both datasets.</p></li>
 </ol>
 <ul>
 <li><p>The difference between <code>semi_join</code> and <code>inner_join</code> is that <code>semi_join()</code> takes only the variables on the left. This can be verified by seeing the dimension of each dataset. Inner-joined dataset’s dimension is (12x6)(6 is same as the number of variables in <code>gapminder_2000s</code> ). On the contrary, the other one’s dimension is (12x8).</p></li>
