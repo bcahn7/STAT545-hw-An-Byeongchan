@@ -520,4 +520,150 @@ full_join(gapminder_2000s, extra_info)
 ## # ... with 275 more rows, and 1 more variables: Language <fctr>
 ```
 
+Activity #3
+
+  * This is really an optional add-on to either of the previous activities.
+  * Explore the base function `merge()`, which also does joins. Compare and contrast with dplyr joins.
+  * Explore the base function `match()`, which is related to joins and merges, but is really more of a "table lookup". Compare and contrast with a true join/merge.  
+   
+I tried `merge()` function. The dimension of the result was same as `inner_join()`(18x6).  
+There was some differences. The dataset from `merge()` was data.frame and the one from `inner_join()` was tibble. The class of country was factor when `merge()` is used. On the other hand, the class of country was character. 
+
+```r
+merge(gapminder_2000s, extra_info)
+```
+
+```
+##          country continent year lifeExp        pop gdpPercap
+## 1      Australia   Oceania 2007  81.235   20434176 34435.367
+## 2      Australia   Oceania 2002  80.370   19546792 30687.755
+## 3         Canada  Americas 2007  80.653   33390141 36319.235
+## 4         Canada  Americas 2002  79.770   31902268 33328.965
+## 5          China      Asia 2002  72.028 1280400000  3119.281
+## 6          China      Asia 2007  72.961 1318683096  4959.115
+## 7          Japan      Asia 2002  82.000  127065841 28604.592
+## 8          Japan      Asia 2007  82.603  127467972 31656.068
+## 9    Korea, Rep.      Asia 2002  77.045   47969150 19233.988
+## 10   Korea, Rep.      Asia 2007  78.623   49044790 23348.140
+## 11 United States  Americas 2002  77.310  287675526 39097.100
+## 12 United States  Americas 2007  78.242  301139947 42951.653
+##        capital_city          Language
+## 1          Canberra           English
+## 2          Canberra           English
+## 3            Ottawa    English/French
+## 4            Ottawa    English/French
+## 5           Beijing Standard Mandarin
+## 6           Beijing Standard Mandarin
+## 7             Tokyo          Japanese
+## 8             Tokyo          Japanese
+## 9             Seoul            Korean
+## 10            Seoul            Korean
+## 11 Washington, D.C.           English
+## 12 Washington, D.C.           English
+```
+
+```r
+str(merge(gapminder_2000s, extra_info))
+```
+
+```
+## 'data.frame':	12 obs. of  8 variables:
+##  $ country     : Factor w/ 142 levels "Afghanistan",..: 6 6 21 21 25 25 67 67 71 71 ...
+##  $ continent   : Factor w/ 5 levels "Africa","Americas",..: 5 5 2 2 3 3 3 3 3 3 ...
+##  $ year        : int  2007 2002 2007 2002 2002 2007 2002 2007 2002 2007 ...
+##  $ lifeExp     : num  81.2 80.4 80.7 79.8 72 ...
+##  $ pop         : int  20434176 19546792 33390141 31902268 1280400000 1318683096 127065841 127467972 47969150 49044790 ...
+##  $ gdpPercap   : num  34435 30688 36319 33329 3119 ...
+##  $ capital_city: Factor w/ 7 levels "Beijing","Canberra",..: 2 2 3 3 1 1 5 5 4 4 ...
+##  $ Language    : Factor w/ 6 levels "English","English/French",..: 1 1 2 2 6 6 4 4 5 5 ...
+```
+
+```r
+inner_join(gapminder_2000s, extra_info)
+```
+
+```
+## Joining, by = "country"
+```
+
+```
+## Warning: Column `country` joining factors with different levels, coercing
+## to character vector
+```
+
+```
+## # A tibble: 12 x 8
+##          country continent  year lifeExp        pop gdpPercap
+##            <chr>    <fctr> <int>   <dbl>      <int>     <dbl>
+##  1     Australia   Oceania  2002  80.370   19546792 30687.755
+##  2     Australia   Oceania  2007  81.235   20434176 34435.367
+##  3        Canada  Americas  2002  79.770   31902268 33328.965
+##  4        Canada  Americas  2007  80.653   33390141 36319.235
+##  5         China      Asia  2002  72.028 1280400000  3119.281
+##  6         China      Asia  2007  72.961 1318683096  4959.115
+##  7         Japan      Asia  2002  82.000  127065841 28604.592
+##  8         Japan      Asia  2007  82.603  127467972 31656.068
+##  9   Korea, Rep.      Asia  2002  77.045   47969150 19233.988
+## 10   Korea, Rep.      Asia  2007  78.623   49044790 23348.140
+## 11 United States  Americas  2002  77.310  287675526 39097.100
+## 12 United States  Americas  2007  78.242  301139947 42951.653
+## # ... with 2 more variables: capital_city <fctr>, Language <fctr>
+```
+
+```r
+str(inner_join(gapminder_2000s, extra_info))
+```
+
+```
+## Joining, by = "country"
+```
+
+```
+## Warning: Column `country` joining factors with different levels, coercing
+## to character vector
+```
+
+```
+## Classes 'tbl_df', 'tbl' and 'data.frame':	12 obs. of  8 variables:
+##  $ country     : chr  "Australia" "Australia" "Canada" "Canada" ...
+##  $ continent   : Factor w/ 5 levels "Africa","Americas",..: 5 5 2 2 3 3 3 3 3 3 ...
+##  $ year        : int  2002 2007 2002 2007 2002 2007 2002 2007 2002 2007 ...
+##  $ lifeExp     : num  80.4 81.2 79.8 80.7 72 ...
+##  $ pop         : int  19546792 20434176 31902268 33390141 1280400000 1318683096 127065841 127467972 47969150 49044790 ...
+##  $ gdpPercap   : num  30688 34435 33329 36319 3119 ...
+##  $ capital_city: Factor w/ 7 levels "Beijing","Canberra",..: 2 2 3 3 1 1 5 5 4 4 ...
+##  $ Language    : Factor w/ 6 levels "English","English/French",..: 1 1 2 2 6 6 4 4 5 5 ...
+```
+
+`match()` can be used to find whether and where elements exist in the other dataset. This function is not for combining two different datasets.
+
+
+```r
+match(extra_info$country, gapminder_2000s$country)
+```
+
+```
+## [1] 141 133  49  41  11 269  NA
+```
+
+```r
+match(gapminder_2000s$country, extra_info$country)
+```
+
+```
+##   [1] NA NA NA NA NA NA NA NA NA NA  5  5 NA NA NA NA NA NA NA NA NA NA NA
+##  [24] NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA  4  4 NA NA NA NA
+##  [47] NA NA  3  3 NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA
+##  [70] NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA
+##  [93] NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA
+## [116] NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA  2  2 NA NA NA NA
+## [139] NA NA  1  1 NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA
+## [162] NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA
+## [185] NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA
+## [208] NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA
+## [231] NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA
+## [254] NA NA NA NA NA NA NA NA NA NA NA NA NA NA NA  6  6 NA NA NA NA NA NA
+## [277] NA NA NA NA NA NA NA NA
+```
+
 

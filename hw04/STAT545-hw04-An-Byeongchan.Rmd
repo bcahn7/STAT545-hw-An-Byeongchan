@@ -204,4 +204,28 @@ left_join(gapminder_2000s, extra_info)
 full_join(gapminder_2000s, extra_info)
 ```
 
+Activity #3
+
+  * This is really an optional add-on to either of the previous activities.
+  * Explore the base function `merge()`, which also does joins. Compare and contrast with dplyr joins.
+  * Explore the base function `match()`, which is related to joins and merges, but is really more of a "table lookup". Compare and contrast with a true join/merge.  
+   
+I tried `merge()` function. The dimension of the result was same as `inner_join()`(18x6).  
+There was some differences. The dataset from `merge()` was data.frame and the one from `inner_join()` was tibble. The class of country was factor when `merge()` is used. On the other hand, the class of country was character. 
+```{r}
+merge(gapminder_2000s, extra_info)
+str(merge(gapminder_2000s, extra_info))
+```
+```{r}
+inner_join(gapminder_2000s, extra_info)
+str(inner_join(gapminder_2000s, extra_info))
+```
+
+`match()` can be used to find whether and where elements exist in the other dataset. This function is not for combining two different datasets.
+
+```{r}
+match(extra_info$country, gapminder_2000s$country)
+match(gapminder_2000s$country, extra_info$country)
+```
+
 
