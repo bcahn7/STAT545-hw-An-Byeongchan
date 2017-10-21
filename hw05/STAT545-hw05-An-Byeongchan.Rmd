@@ -282,10 +282,8 @@ Use `ggsave()` to explicitly save a plot to file. Then use `![Alt text](/path/to
 `ggsave()` is used to save a plot to `.pdf` and `.png` files. `.pdf` is a vector format, which can scale naturally when expanded. `.png` is a raster format, which look bad when expanded. 
 ```{r}
 ggsave("plots_saved/hw05_my_plot.pdf",width = 10, height = 6, plot = p1)
-ggsave("plots_saved/hw05_my_plot.png",width = 10, scale = 2, dpi=200, plot = p2)
+ggsave("plots_saved/hw05_my_plot.png",width = 10, scale = 1.5, dpi=200, plot = p2)
 ```
-![Link to pdf file (plot)](/plots_saved/hw05_my_plot.pdf)
-![Link to png file (plot)](/plots_saved/hw05_my_plot.png)
 
 
 
