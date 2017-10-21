@@ -763,6 +763,8 @@ ggsave("plots_saved/hw05_my_plot.png",width = 10, scale = 1.5, dpi=200, plot = p
 ```
 ## Saving 15 x 7.5 in image
 ```
+  ![Link to pdf file (plot)](plots_saved/hw05_my_plot.pdf)
+  ![Link to png file (plot)](plots_saved/hw05_my_plot.png)
 
 
 
